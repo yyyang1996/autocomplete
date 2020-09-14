@@ -6,8 +6,13 @@
  * DOM programatically (e.g., attached events, used a renderer like Preact), so
  * this needs to be a noop.
  */
-export function renderTemplate(template: string | void, root: HTMLElement) {
-  if (typeof template === 'string') {
-    root.innerHTML = template;
-  }
+export function renderTemplate(
+  template: Promise<string> | string | void,
+  root: HTMLElement
+) {
+  return Promise.resolve(template).then((templateContent) => {
+    if (typeof templateContent === 'string') {
+      root.innerHTML = templateContent;
+    }
+  });
 }

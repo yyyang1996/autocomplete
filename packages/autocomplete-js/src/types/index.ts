@@ -7,7 +7,7 @@ import {
   PublicAutocompleteSource as PublicAutocompleteCoreSource,
 } from '@algolia/autocomplete-core';
 
-type Template<TParams> = (params: TParams) => string | void;
+type Template<TParams> = (params: TParams) => Promise<string> | string | void;
 
 export type AutocompleteSource<TItem> = AutocompleteCoreSource<TItem> & {
   /**
