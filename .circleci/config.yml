@@ -16,10 +16,10 @@ aliases:
     name: Save Yarn cache
     key: yarn-packages-v1-{{ .Branch }}-{{ checksum "yarn.lock" }}
     paths:
-      - ~/.cache/yarn
+      - node_modules
   - &run_yarn_install
     name: Install dependencies
-    command: yarn install --frozen-lockfile --cache-folder ~/.cache/yarn
+    command: yarn install --frozen-lockfile
   - &restore_dist_folders
     name: Restore dist folders
     command: |
@@ -91,6 +91,7 @@ jobs:
       - *attach_workspace
       - run: *install_yarn_version
       - restore_cache: *restore_yarn_cache
+      - run: *run_yarn_install
       - save_cache: *save_yarn_cache
       - run: *restore_dist_folders
       - run:
@@ -103,6 +104,7 @@ jobs:
       - *attach_workspace
       - run: *install_yarn_version
       - restore_cache: *restore_yarn_cache
+      - run: *run_yarn_install
       - save_cache: *save_yarn_cache
       - run: *restore_dist_folders
       - run:
@@ -113,7 +115,9 @@ jobs:
     steps:
       - checkout
       - *attach_workspace
+      - run: *install_yarn_version
       - restore_cache: *restore_yarn_cache
+      - run: *run_yarn_install
       - save_cache: *save_yarn_cache
       - run: *restore_dist_folders
       - run:
@@ -126,6 +130,7 @@ jobs:
       - *attach_workspace
       - run: *install_yarn_version
       - restore_cache: *restore_yarn_cache
+      - run: *run_yarn_install
       - save_cache: *save_yarn_cache
       - run: *restore_dist_folders
       - run:
@@ -138,6 +143,7 @@ jobs:
       - *attach_workspace
       - run: *install_yarn_version
       - restore_cache: *restore_yarn_cache
+      - run: *run_yarn_install
       - save_cache: *save_yarn_cache
       - run: *restore_dist_folders
       - run:
