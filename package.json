@@ -13,7 +13,7 @@
     "build": "lerna run build --no-private",
     "lint": "eslint --ext .js,.ts,.tsx .",
     "playground:start": "yarn workspace @algolia/js-example start",
-    "prepare": "lerna run prepare --no-private",
+    "prepare": "if [ -z $CI ]; then lerna run prepare --no-private; fi",
     "release": "shipjs prepare",
     "start": "yarn run watch",
     "test:size": "bundlesize",
@@ -22,6 +22,9 @@
     "watch": "lerna run watch --parallel --no-private",
     "website:build": "yarn workspace @algolia/autocomplete-website build",
     "website:start": "yarn workspace @algolia/autocomplete-website start --host 0.0.0.0"
+  },
+  "engines": {
+    "node": "14.15.0"
   },
   "devDependencies": {
     "@babel/cli": "7.11.5",
