@@ -9,15 +9,17 @@ aliases:
   - &restore_yarn_cache
     name: Restore Yarn cache
     keys:
-      - yarn-{{ .Branch }}-packages-{{ checksum "yarn.lock" }}
+      - yarn-packages-v1-{{ .Branch }}-{{ checksum "yarn.lock" }}
+      - yarn-packages-v1-{{ .Branch }}-
+      - yarn-packages-v1-
   - &save_yarn_cache
     name: Save Yarn cache
-    key: yarn-{{ .Branch }}-packages-{{ checksum "yarn.lock" }}
+    key: yarn-packages-v1-{{ .Branch }}-{{ checksum "yarn.lock" }}
     paths:
       - ~/.cache/yarn
   - &run_yarn_install
     name: Install dependencies
-    command: yarn install --frozen-lockfile
+    command: yarn install --frozen-lockfile --cache-folder ~/.cache/yarn
   - &restore_dist_folders
     name: Restore dist folders
     command: |
@@ -89,7 +91,6 @@ jobs:
       - *attach_workspace
       - run: *install_yarn_version
       - restore_cache: *restore_yarn_cache
-      - run: *run_yarn_install
       - save_cache: *save_yarn_cache
       - run: *restore_dist_folders
       - run:
@@ -102,7 +103,6 @@ jobs:
       - *attach_workspace
       - run: *install_yarn_version
       - restore_cache: *restore_yarn_cache
-      - run: *run_yarn_install
       - save_cache: *save_yarn_cache
       - run: *restore_dist_folders
       - run:
@@ -113,9 +113,7 @@ jobs:
     steps:
       - checkout
       - *attach_workspace
-      - run: *install_yarn_version
       - restore_cache: *restore_yarn_cache
-      - run: *run_yarn_install
       - save_cache: *save_yarn_cache
       - run: *restore_dist_folders
       - run:
@@ -128,7 +126,6 @@ jobs:
       - *attach_workspace
       - run: *install_yarn_version
       - restore_cache: *restore_yarn_cache
-      - run: *run_yarn_install
       - save_cache: *save_yarn_cache
       - run: *restore_dist_folders
       - run:
@@ -141,7 +138,6 @@ jobs:
       - *attach_workspace
       - run: *install_yarn_version
       - restore_cache: *restore_yarn_cache
-      - run: *run_yarn_install
       - save_cache: *save_yarn_cache
       - run: *restore_dist_folders
       - run:
