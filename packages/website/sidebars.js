@@ -19,6 +19,7 @@ module.exports = {
       'using-algolia-insights-plugin',
       'creating-multi-source-autocompletes',
       'using-dynamic-sources-based-on-query',
+      'autocomplete-for-instantsearch',
       'creating-a-renderer',
       'upgrading',
       'debugging',

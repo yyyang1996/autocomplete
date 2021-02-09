@@ -11,7 +11,7 @@ import {
 import { createQuerySuggestionsPlugin } from '@algolia/autocomplete-plugin-query-suggestions';
 import { createLocalStorageRecentSearchesPlugin } from '@algolia/autocomplete-plugin-recent-searches';
 import { Hit } from '@algolia/client-search';
-import algoliasearch from 'algoliasearch';
+import algoliasearch from 'algoliasearch/lite';
 import { h, Fragment } from 'preact';
 import insightsClient from 'search-insights';
 

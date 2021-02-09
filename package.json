@@ -14,7 +14,7 @@
     "build": "lerna run build --no-private",
     "lint:css": "stylelint packages/*/src/**/*.scss",
     "lint": "eslint --ext .js,.ts,.tsx .",
-    "playground:start": "yarn workspace @algolia/js-example start",
+    "playground:start": "yarn workspace @algolia/example-js start",
     "prepare": "lerna run prepare --no-private",
     "release": "shipjs prepare",
     "start": "yarn run watch",
