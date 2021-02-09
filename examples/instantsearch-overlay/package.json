@@ -1,6 +1,6 @@
 {
-  "name": "@algolia/example-instantsearch-basic",
-  "description": "Autocomplete for InstantSearch (Basic) Sandbox",
+  "name": "@algolia/example-instantsearch-overlay",
+  "description": "Autocomplete for InstantSearch (Overlay) Sandbox",
   "version": "1.0.0-alpha.40",
   "private": true,
   "license": "MIT",

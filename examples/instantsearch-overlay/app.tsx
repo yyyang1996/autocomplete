@@ -290,12 +290,12 @@ const autocompleteSearch = autocomplete({
     }
   },
   onStateChange({ prevState, state }) {
-    // overlay.hidden = !state.isOpen;
+    overlay.hidden = !state.isOpen;
 
     if (isSearchPage()) {
-      // if (!state.isOpen && prevState.query !== state.query) {
-      setInstantSearchQuery(state.query);
-      // }
+      if (!state.isOpen && prevState.query !== state.query) {
+        setInstantSearchQuery(state.query);
+      }
     }
   },
   // debug: true,
