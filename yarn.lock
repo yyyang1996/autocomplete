@@ -10651,12 +10651,7 @@ inquirer@^7.0.0, inquirer@^7.2.0:
     strip-ansi "^6.0.0"
     through "^2.3.6"
 
-instantsearch.css@7.4.5:
-  version "7.4.5"
-  resolved "https://registry.yarnpkg.com/instantsearch.css/-/instantsearch.css-7.4.5.tgz#2a521aa634329bf1680f79adf87c79d67669ec8d"
-  integrity sha512-iIGBYjCokU93DDB8kbeztKtlu4qVEyTg1xvS6iSO1YvqRwkIZgf0tmsl/GytsLdZhuw8j4wEaeYsCzNbeJ/zEQ==
-
-instantsearch.js@^4.14.0:
+instantsearch.js@4.14.0:
   version "4.14.0"
   resolved "https://registry.yarnpkg.com/instantsearch.js/-/instantsearch.js-4.14.0.tgz#b3d1fd68f75e4b7e3074724ced63bb62d80f27c0"
   integrity sha512-WbWsz9h77Y9/t+g3ijnU9LFVb+IoukY/EJBhXa1E8XjjkKdeDbc0QFyenBYGwc69ZlXMyT5Vp3puXxjf5ZnV4A==
@@ -13341,7 +13336,7 @@ natural-compare@^1.4.0:
   resolved "https://registry.yarnpkg.com/natural-compare/-/natural-compare-1.4.0.tgz#4abebfeed7541f2c27acfb29bdbbd15c8d5ba4f7"
   integrity sha1-Sr6/7tdUHywnrPspvbvRXI1bpPc=
 
-navigo@^8.8.7:
+navigo@8.8.7:
   version "8.8.7"
   resolved "https://registry.yarnpkg.com/navigo/-/navigo-8.8.7.tgz#8686e8e13b220f2062844f749269e5e8d99e06a6"
   integrity sha512-HoQFHg6KzP6Ii00WSqlW8gpUBE5x7jitnA21oVSB7FpkDheqUVtNsW7CsWOnqCiD0WxUfdCDvAv5/oCgv1l1tw==

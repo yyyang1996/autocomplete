@@ -175,7 +175,7 @@ const querySuggestionsPlugin = createQuerySuggestionsPlugin({
             const hitWithCategories = {
               ...firstHit,
               isCategoryHit: true,
-              __autocomplete_qsCategories: firstHit?.instant_search.facets.exact_matches[
+              __autocomplete_qsCategories: firstHit.instant_search.facets.exact_matches[
                 'hierarchicalCategories.lvl0'
               ].map((x) => x.value),
             };
@@ -286,7 +286,9 @@ const autocompleteSearch = autocomplete({
     if (isSearchPage()) {
       setInstantSearchQuery(state.query);
     } else {
-      router.navigate(getSearchPageUrl(state.query));
+      router.navigate(
+        getSearchPageUrl({ query: state.query, hierarchicalMenu: {} })
+      );
     }
   },
   onStateChange({ prevState, state }) {
