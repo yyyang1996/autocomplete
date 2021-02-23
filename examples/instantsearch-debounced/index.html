@@ -1,0 +1,63 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link rel="shortcut icon" href="favicon.png" type="image/x-icon" />
+    <link rel="stylesheet" href="style.css" />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/instantsearch.css@7/themes/satellite-min.css"
+    />
+
+    <title>Autocomplete with InstantSearch (debounced)</title>
+  </head>
+
+  <body>
+    <header class="header">
+      <div class="header-wrapper wrapper">
+        <nav class="header-nav">
+          <a href="/">Home</a>
+        </nav>
+        <div id="autocomplete"></div>
+      </div>
+    </header>
+
+    <div class="container wrapper">
+      <div data-page="home">
+        <img src="iphone-banner.png" alt="iPhone banner" class="banner" />
+
+        <div class="ais-Hits">
+          <ul class="ais-Hits-list">
+            <li class="ais-Hits-item">
+              <h1>Title 1</h1>
+            </li>
+            <li class="ais-Hits-item">
+              <h1>Title 2</h1>
+            </li>
+            <li class="ais-Hits-item">
+              <h1>Title 3</h1>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div data-page="search">
+        <div class="instantsearch">
+          <div>
+            <div id="categories"></div>
+          </div>
+          <div>
+            <img src="iphone-banner.png" alt="iPhone banner" class="banner" />
+
+            <div id="hits"></div>
+            <div id="pagination"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="env.ts"></script>
+    <script src="app.tsx"></script>
+  </body>
+</html>

@@ -1,0 +1,132 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background-color: rgb(244, 244, 249);
+  color: rgb(65, 65, 65);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  padding: 0;
+  margin: 0;
+}
+
+div[data-page] {
+  display: none;
+}
+
+body[data-active-page='home'] div[data-page='home'] {
+  display: block;
+}
+
+body[data-active-page='search'] div[data-page='search'] {
+  display: block;
+}
+
+a {
+  color: var(--aa-primary-color);
+  text-decoration: none;
+}
+
+.header {
+  background: rgb(252 252 255 / 92%);
+  padding: 0.5rem 0;
+  box-shadow: 0 0 0 1px rgba(35, 38, 59, 0.05),
+    0 1px 3px 0 rgba(35, 38, 59, 0.15);
+  position: fixed;
+  width: 100%;
+  top: 0;
+  backdrop-filter: blur(6px);
+}
+
+.header-wrapper {
+  align-items: center;
+  display: grid;
+  grid-template-columns: 100px 1fr;
+}
+
+.header-nav {
+  font-weight: 500;
+}
+
+.wrapper {
+  margin: 0 auto;
+  max-width: 1100px;
+  width: 100%;
+  padding: 0 1.5rem;
+}
+
+.container {
+  margin-top: 3.5rem;
+  padding: 1.5rem;
+}
+
+.container img {
+  max-width: 100%;
+}
+
+.banner {
+  border-radius: 3px;
+  margin-top: 1rem;
+}
+
+#pagination {
+  display: flex;
+  justify-content: center;
+  margin: 1rem 0;
+}
+
+.ais-Hits {
+  margin-top: 1rem;
+}
+
+.ais-Hits-list {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 1fr 1fr 1fr;
+}
+
+.ais-Hits-item {
+  padding: 1rem;
+}
+
+.hit {
+  align-items: center;
+  display: grid;
+  gap: 1rem;
+}
+
+.hit-image {
+  align-items: center;
+  display: flex;
+  height: 100px;
+  justify-content: center;
+}
+
+.hit-image img {
+  max-height: 100%;
+}
+
+.ais-HierarchicalMenu-item--selected.ais-HierarchicalMenu-item--parent
+  > div:first-of-type
+  .ais-HierarchicalMenu-label {
+  font-weight: bold;
+}
+
+.ais-HierarchicalMenu-item--selected:not(.ais-HierarchicalMenu-item--parent)
+  .ais-HierarchicalMenu-label {
+  font-weight: bold;
+}
+
+.instantsearch {
+  display: grid;
+  grid-template-columns: 1fr 3fr;
+  gap: 1rem;
+}
+
+.aa-Panel {
+  position: fixed !important;
+}
