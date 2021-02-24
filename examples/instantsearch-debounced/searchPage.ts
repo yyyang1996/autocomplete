@@ -38,7 +38,7 @@ const hierarchicalMenuWithHeader = panel({
 
 search.addWidgets([
   configure({
-    attributesToSnippet: ['description:25'],
+    attributesToSnippet: ['name:7', 'description:15'],
     snippetEllipsisText: '…',
   }),
   // We mount a virtual search box to manipulate InstantSearch's `query` UI
@@ -58,7 +58,7 @@ search.addWidgets([
           </div>
           <div>
             <h1>
-              {{#helpers.highlight}}{ "attribute": "name" }{{/helpers.highlight}}
+              {{#helpers.snippet}}{ "attribute": "name" }{{/helpers.snippet}}
             </h1>
             <p>
               {{#helpers.snippet}}{ "attribute": "description" }{{/helpers.snippet}}

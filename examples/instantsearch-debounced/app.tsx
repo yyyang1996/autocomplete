@@ -1,9 +1,9 @@
 /** @jsx h */
-import { autocomplete, AutocompleteSource } from '@algolia/autocomplete-js';
+import { autocomplete } from '@algolia/autocomplete-js';
 import { createQuerySuggestionsPlugin } from '@algolia/autocomplete-plugin-query-suggestions';
 import { createLocalStorageRecentSearchesPlugin } from '@algolia/autocomplete-plugin-recent-searches';
 import Navigo from 'navigo';
-import { h } from 'preact';
+import { h, Fragment } from 'preact';
 
 import '@algolia/autocomplete-theme-classic';
 
@@ -22,84 +22,212 @@ function isSearchPage() {
   return document.body.getAttribute('data-active-page') === 'search';
 }
 
-function transformSource<TItem extends Record<string, unknown>>({
-  source,
-}: {
-  source: AutocompleteSource<TItem>;
-}) {
-  return {
-    ...source,
-    getItemUrl({ item }) {
-      if (isSearchPage()) {
-        return undefined;
-      }
+function getActiveCategory() {
+  return search.renderState.instant_search.hierarchicalMenu?.[
+    'hierarchicalCategories.lvl0'
+  ].items.find((item) => item.isRefined)?.value;
+}
 
-      return getSearchPageUrl({
+function getItemUrl({ item }) {
+  if (isSearchPage()) {
+    return undefined;
+  }
+
+  return getSearchPageUrl({
+    query: item.query,
+    hierarchicalMenu: {
+      'hierarchicalCategories.lvl0': [item.__autocomplete_qsCategory],
+    },
+  });
+}
+
+function onSelect({ setIsOpen, item }) {
+  setIsOpen(false);
+
+  if (isSearchPage()) {
+    if (item.__autocomplete_qsCategory) {
+      setInstantSearchUiState({
         query: item.query,
         hierarchicalMenu: {
           'hierarchicalCategories.lvl0': [item.__autocomplete_qsCategory],
         },
       });
-    },
-    onSelect({ setIsOpen, item }) {
-      setIsOpen(false);
+    } else {
+      setInstantSearchUiState({
+        query: item.query,
+      });
+    }
+  }
+}
 
-      if (isSearchPage()) {
-        if (item.__autocomplete_qsCategory) {
-          setInstantSearchUiState({
-            query: item.query,
-            hierarchicalMenu: {
-              'hierarchicalCategories.lvl0': [item.__autocomplete_qsCategory],
-            },
-          });
-        } else {
-          setInstantSearchUiState({ query: item.query });
+function ItemWrapper({ item, children }) {
+  return (
+    <a
+      className="aa-ItemLink"
+      href={getSearchPageUrl({
+        query: item.query,
+        hierarchicalMenu: {
+          'hierarchicalCategories.lvl0': [item.__autocomplete_qsCategory],
+        },
+      })}
+      onClick={(event) => {
+        if (isSearchPage()) {
+          event.preventDefault();
         }
-      }
-    },
-    templates: {
-      ...source.templates,
-      item(params) {
-        const { item } = params;
-
-        return (
-          <a
-            className="aa-ItemLink"
-            href={getSearchPageUrl({
-              query: item.query,
-              hierarchicalMenu: {
-                'hierarchicalCategories.lvl0': [item.__autocomplete_qsCategory],
-              },
-            })}
-            onClick={(event) => {
-              if (isSearchPage()) {
-                event.preventDefault();
-              }
-            }}
-          >
-            {source.templates.item(params)}
-          </a>
-        );
-      },
-    },
-  };
+      }}
+    >
+      {children}
+    </a>
+  );
 }
 
 const recentSearchesPlugin = createLocalStorageRecentSearchesPlugin({
   key: 'instantsearch-basic',
   limit: 3,
-  transformSource,
+  transformSource({ source }) {
+    return {
+      ...source,
+      getItemUrl,
+      onSelect,
+      templates: {
+        ...source.templates,
+        item(params) {
+          return (
+            <ItemWrapper item={params.item}>
+              {source.templates.item(params)}
+            </ItemWrapper>
+          );
+        },
+      },
+    };
+  },
+});
+const querySuggestionsPluginInCategory = createQuerySuggestionsPlugin({
+  searchClient,
+  indexName: 'instant_search_demo_query_suggestions',
+  getSearchParams() {
+    const activeCategory = getActiveCategory();
+
+    return recentSearchesPlugin.data.getAlgoliaSearchParams({
+      hitsPerPage: 3,
+      facets: ['facets.exact_matches.categories'],
+      facetFilters: [
+        `instant_search.facets.exact_matches.categories.value:${activeCategory}`,
+      ],
+    });
+  },
+  transformSource({ source }) {
+    const activeCategory = getActiveCategory();
+
+    return {
+      ...source,
+      getItemUrl,
+      onSelect,
+      getItems(params) {
+        if (!activeCategory) {
+          return [];
+        }
+
+        return source.getItems(params);
+      },
+      templates: {
+        ...source.templates,
+        header({ items }) {
+          if (items.length === 0) {
+            return null;
+          }
+
+          return (
+            <Fragment>
+              <span className="aa-SourceHeaderTitle">In {activeCategory}</span>
+              <div className="aa-SourceHeaderLine" />
+            </Fragment>
+          );
+        },
+        item(params) {
+          return (
+            <ItemWrapper item={params.item}>
+              {source.templates.item(params)}
+            </ItemWrapper>
+          );
+        },
+      },
+    };
+  },
 });
 const querySuggestionsPlugin = createQuerySuggestionsPlugin({
   searchClient,
   indexName: 'instant_search_demo_query_suggestions',
   getSearchParams() {
+    const activeCategory = getActiveCategory();
+
     return recentSearchesPlugin.data.getAlgoliaSearchParams({
-      hitsPerPage: 6,
+      hitsPerPage: activeCategory ? 3 : 6,
+      facets: ['facets.exact_matches.categories'],
+      facetFilters: [
+        `instant_search.facets.exact_matches.categories.value:-${activeCategory}`,
+      ],
     });
   },
   categoryAttribute: 'hierarchicalCategories.lvl0',
-  transformSource,
+  transformSource({ source }) {
+    const activeCategory = getActiveCategory();
+
+    return {
+      ...source,
+      getItemUrl,
+      onSelect({ setIsOpen, item }) {
+        setIsOpen(false);
+
+        if (isSearchPage()) {
+          if (item.__autocomplete_qsCategory) {
+            setInstantSearchUiState({
+              query: item.query,
+              hierarchicalMenu: {
+                'hierarchicalCategories.lvl0': [item.__autocomplete_qsCategory],
+              },
+            });
+          } else {
+            setInstantSearchUiState({
+              query: item.query,
+              hierarchicalMenu: {
+                'hierarchicalCategories.lvl0': [],
+              },
+            });
+          }
+        }
+      },
+      getItems(params) {
+        if (!params.state.query && activeCategory) {
+          return [];
+        }
+
+        return source.getItems(params);
+      },
+      templates: {
+        ...source.templates,
+        header({ items }) {
+          if (!activeCategory || items.length === 0) {
+            return null;
+          }
+
+          return (
+            <Fragment>
+              <span className="aa-SourceHeaderTitle">In other categories</span>
+              <div className="aa-SourceHeaderLine" />
+            </Fragment>
+          );
+        },
+        item(params) {
+          return (
+            <ItemWrapper item={params.item}>
+              {source.templates.item(params)}
+            </ItemWrapper>
+          );
+        },
+      },
+    };
+  },
 });
 
 const debouncedSetInstantSearchUiState = debounce(setInstantSearchUiState, 500);
@@ -107,9 +235,12 @@ const debouncedSetInstantSearchUiState = debounce(setInstantSearchUiState, 500);
 const autocompleteSearch = autocomplete({
   container: '#autocomplete',
   openOnFocus: true,
-  plugins: [recentSearchesPlugin, querySuggestionsPlugin],
+  plugins: [
+    recentSearchesPlugin,
+    querySuggestionsPluginInCategory,
+    querySuggestionsPlugin,
+  ],
   touchMediaQuery: 'none',
-  // debug: true,
   navigator: {
     navigate({ item }) {
       router.navigate(
