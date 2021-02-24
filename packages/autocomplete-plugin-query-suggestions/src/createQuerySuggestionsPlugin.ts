@@ -21,8 +21,10 @@ export type CreateQuerySuggestionsPluginParams<
   }): AutocompleteSource<TItem>;
   /**
    * The attribute to display categories.
+   * @example "instant_search.facets.exact_matches.categories"
+   * @example "instant_search.facets.exact_matches['hierarchicalCategories.lvl0']"
    */
-  categoryAttribute?: string;
+  categoryAttribute?: string | string[];
   /**
    * The number of items to display categories for.
    * @default 1
@@ -34,6 +36,10 @@ export type CreateQuerySuggestionsPluginParams<
    */
   categoriesPerItem?: number;
 };
+
+function getAttributeValueByPath<TObject>(obj: TObject, path: string[]): any {
+  return path.reduce((current, key) => current && current[key], obj);
+}
 
 export function createQuerySuggestionsPlugin<
   TItem extends AutocompleteQuerySuggestionsHit
@@ -86,9 +92,12 @@ export function createQuerySuggestionsPlugin<
                   > = [current];
 
                   if (i <= categoriesPerItem - 1) {
-                    const categories = current.instant_search.facets.exact_matches[
-                      categoryAttribute
-                    ]
+                    const categories = getAttributeValueByPath(
+                      current,
+                      Array.isArray(categoryAttribute)
+                        ? categoryAttribute
+                        : [categoryAttribute]
+                    )
                       .map((x) => x.value)
                       .slice(0, categoriesLimit);
 

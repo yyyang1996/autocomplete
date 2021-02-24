@@ -17,14 +17,15 @@ import {
 } from './searchPage';
 
 const router = new Navigo('/');
+const hierarchicalAttribute = 'hierarchicalCategories.lvl0';
 
 function isSearchPage() {
   return document.body.getAttribute('data-active-page') === 'search';
 }
 
 function getActiveCategory() {
-  return search.renderState.instant_search.hierarchicalMenu?.[
-    'hierarchicalCategories.lvl0'
+  return search.renderState.instant_search?.hierarchicalMenu?.[
+    hierarchicalAttribute
   ].items.find((item) => item.isRefined)?.value;
 }
 
@@ -36,7 +37,7 @@ function getItemUrl({ item }) {
   return getSearchPageUrl({
     query: item.query,
     hierarchicalMenu: {
-      'hierarchicalCategories.lvl0': [item.__autocomplete_qsCategory],
+      [hierarchicalAttribute]: [item.__autocomplete_qsCategory],
     },
   });
 }
@@ -49,7 +50,7 @@ function onSelect({ setIsOpen, item }) {
       setInstantSearchUiState({
         query: item.query,
         hierarchicalMenu: {
-          'hierarchicalCategories.lvl0': [item.__autocomplete_qsCategory],
+          [hierarchicalAttribute]: [item.__autocomplete_qsCategory],
         },
       });
     } else {
@@ -67,7 +68,7 @@ function ItemWrapper({ item, children }) {
       href={getSearchPageUrl({
         query: item.query,
         hierarchicalMenu: {
-          'hierarchicalCategories.lvl0': [item.__autocomplete_qsCategory],
+          [hierarchicalAttribute]: [item.__autocomplete_qsCategory],
         },
       })}
       onClick={(event) => {
@@ -169,7 +170,12 @@ const querySuggestionsPlugin = createQuerySuggestionsPlugin({
       ],
     });
   },
-  categoryAttribute: 'hierarchicalCategories.lvl0',
+  categoryAttribute: [
+    'instant_search',
+    'facets',
+    'exact_matches',
+    hierarchicalAttribute,
+  ],
   transformSource({ source }) {
     const activeCategory = getActiveCategory();
 
@@ -184,14 +190,14 @@ const querySuggestionsPlugin = createQuerySuggestionsPlugin({
             setInstantSearchUiState({
               query: item.query,
               hierarchicalMenu: {
-                'hierarchicalCategories.lvl0': [item.__autocomplete_qsCategory],
+                [hierarchicalAttribute]: [item.__autocomplete_qsCategory],
               },
             });
           } else {
             setInstantSearchUiState({
               query: item.query,
               hierarchicalMenu: {
-                'hierarchicalCategories.lvl0': [],
+                [hierarchicalAttribute]: [],
               },
             });
           }
@@ -247,7 +253,7 @@ const autocompleteSearch = autocomplete({
         getSearchPageUrl({
           query: item.query,
           hierarchicalMenu: {
-            'hierarchicalCategories.lvl0': [item.__autocomplete_qsCategory],
+            [hierarchicalAttribute]: [item.__autocomplete_qsCategory],
           },
         })
       );
@@ -258,6 +264,11 @@ const autocompleteSearch = autocomplete({
       setInstantSearchUiState({ query: state.query });
     } else {
       router.navigate(getSearchPageUrl({ query: state.query }));
+    }
+  },
+  onReset() {
+    if (isSearchPage()) {
+      setInstantSearchUiState({ query: '' });
     }
   },
   onStateChange({ state }) {
