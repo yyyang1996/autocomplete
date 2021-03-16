@@ -67,7 +67,8 @@ export function createQuerySuggestionsPlugin<
               return item.query;
             },
             getItems() {
-              return getAlgoliaHits<QuerySuggestionsHit<typeof indexName>>({
+              return {
+                $$typeof: 'algoliaHits',
                 searchClient,
                 queries: [
                   {
@@ -76,41 +77,42 @@ export function createQuerySuggestionsPlugin<
                     params: getSearchParams({ state }),
                   },
                 ],
-              }).then(([hits]) => {
-                if (!query || !categoryAttribute) {
-                  return hits as any;
-                }
-
-                return hits.reduce<
-                  Array<AutocompleteQuerySuggestionsHit<typeof indexName>>
-                >((acc, current, i) => {
-                  const items: Array<
-                    AutocompleteQuerySuggestionsHit<typeof indexName>
-                  > = [current];
-
-                  if (i <= itemsWithCategories - 1) {
-                    const categories = getAttributeValueByPath(
-                      current,
-                      Array.isArray(categoryAttribute)
-                        ? categoryAttribute
-                        : [categoryAttribute]
-                    )
-                      .map((x) => x.value)
-                      .slice(0, categoriesPerItem);
-
-                    for (const category of categories) {
-                      items.push({
-                        __autocomplete_qsCategory: category,
-                        ...current,
-                      } as any);
-                    }
+                execute([hits]) {
+                  if (!query || !categoryAttribute) {
+                    return hits as any;
                   }
 
-                  acc.push(...items);
+                  return hits.reduce<
+                    Array<AutocompleteQuerySuggestionsHit<typeof indexName>>
+                  >((acc, current, i) => {
+                    const items: Array<
+                      AutocompleteQuerySuggestionsHit<typeof indexName>
+                    > = [current];
 
-                  return acc;
-                }, []);
-              });
+                    if (i <= itemsWithCategories - 1) {
+                      const categories = getAttributeValueByPath(
+                        current,
+                        Array.isArray(categoryAttribute)
+                          ? categoryAttribute
+                          : [categoryAttribute]
+                      )
+                        .map((x) => x.value)
+                        .slice(0, categoriesPerItem);
+
+                      for (const category of categories) {
+                        items.push({
+                          __autocomplete_qsCategory: category,
+                          ...current,
+                        } as any);
+                      }
+                    }
+
+                    acc.push(...items);
+
+                    return acc;
+                  }, []);
+                },
+              };
             },
             templates: getTemplates({ onTapAhead }),
           },

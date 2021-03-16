@@ -54,11 +54,11 @@ autocomplete({
   debug: true,
   openOnFocus: true,
   plugins: [
-    shortcutsPlugin,
+    // shortcutsPlugin,
     algoliaInsightsPlugin,
-    recentSearchesPlugin,
+    // recentSearchesPlugin,
     querySuggestionsPlugin,
-    categoriesPlugin,
+    // categoriesPlugin,
   ],
   getSources({ query, state }) {
     if (!query) {
@@ -69,7 +69,8 @@ autocomplete({
       {
         sourceId: 'products',
         getItems() {
-          return getAlgoliaHits<ProductRecord>({
+          return {
+            $$typeof: 'algoliaHits',
             searchClient,
             queries: [
               {
@@ -81,8 +82,31 @@ autocomplete({
                   snippetEllipsisText: '…',
                 },
               },
+              {
+                indexName: 'instant_search',
+                query: 'lol',
+                params: {
+                  clickAnalytics: true,
+                  attributesToSnippet: ['name:10', 'description:35'],
+                  snippetEllipsisText: '…',
+                },
+              },
             ],
-          });
+          };
+          // return getAlgoliaHits<ProductRecord>({
+          //   searchClient,
+          //   queries: [
+          //     {
+          //       indexName: 'instant_search',
+          //       query,
+          //       params: {
+          //         clickAnalytics: true,
+          //         attributesToSnippet: ['name:10', 'description:35'],
+          //         snippetEllipsisText: '…',
+          //       },
+          //     },
+          //   ],
+          // });
         },
         templates: {
           header() {

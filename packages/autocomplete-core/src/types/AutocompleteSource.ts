@@ -50,7 +50,9 @@ export interface AutocompleteSource<TItem extends BaseItem> {
   /**
    * Function called when the input changes. You can use this function to filter/search the items based on the query.
    */
-  getItems(params: GetSourcesParams<TItem>): MaybePromise<TItem[] | TItem[][]>;
+  getItems(
+    params: GetSourcesParams<TItem>
+  ): MaybePromise<TItem[] | TItem[][]> | ItemsDescription;
   /**
    * Function called when an item is selected.
    */
@@ -66,4 +68,12 @@ export interface AutocompleteSource<TItem extends BaseItem> {
 
 export type InternalAutocompleteSource<TItem extends BaseItem> = {
   [KParam in keyof AutocompleteSource<TItem>]-?: AutocompleteSource<TItem>[KParam];
+};
+
+type ItemsDescriptionType = 'algoliaHits';
+
+type ItemsDescription = {
+  $$typeof: ItemsDescriptionType;
+  searchClient: any;
+  queries: any[];
 };

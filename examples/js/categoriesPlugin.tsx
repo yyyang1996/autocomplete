@@ -1,9 +1,5 @@
 /** @jsx h */
-import {
-  AutocompletePlugin,
-  getAlgoliaFacetHits,
-  highlightHit,
-} from '@algolia/autocomplete-js';
+import { AutocompletePlugin, highlightHit } from '@algolia/autocomplete-js';
 import { SearchClient } from 'algoliasearch/lite';
 import { h, Fragment } from 'preact';
 
@@ -29,7 +25,8 @@ export function createCategoriesPlugin({
         {
           sourceId: 'categoriesPlugin',
           getItems() {
-            return getAlgoliaFacetHits({
+            return {
+              $$typeof: 'algoliaFacetHits',
               searchClient,
               queries: [
                 {
@@ -41,7 +38,7 @@ export function createCategoriesPlugin({
                   },
                 },
               ],
-            });
+            };
           },
           templates: {
             header({ items }) {
