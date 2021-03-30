@@ -86,38 +86,6 @@ function toRichFetcherDescription(
   };
 }
 
-function toAlgoliaQueries(
-  richDescriptions: RichFetcherDescription[]
-): AlgoliaQuery[] {
-  return richDescriptions.map((description) => {
-    const { searchClient, queries } = description;
-
-    return {
-      searchClient,
-      queries: queries.map((query) => {
-        const { __autocomplete_callerId, onFetched, ...rest } = query;
-
-        return rest;
-      }),
-    };
-  });
-}
-
-function toRichFetcherResponse(
-  responses: SearchResponse[],
-  references: WithTransformRepsonse<WithCallerId<MultipleQueriesQuery>>[]
-) {
-  return responses.map((result, index) => {
-    const { __autocomplete_callerId, onFetched } = references[index];
-
-    return {
-      ...result,
-      __autocomplete_callerId,
-      onFetched,
-    };
-  });
-}
-
 function isFetcherDescription(
   description: any
 ): description is FetcherDescription {
