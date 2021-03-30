@@ -1,5 +1,6 @@
 import { invariant } from '@algolia/autocomplete-shared';
 
+import { resolve } from './fetcher';
 import {
   AutocompleteScopeApi,
   AutocompleteState,
@@ -82,8 +83,7 @@ export function onInput<TItem extends BaseItem>({
     .then((sources) => {
       setStatus('loading');
 
-      // @TODO: convert `Promise.all` to fetching strategy.
-      return Promise.all(
+      return resolve(
         sources.map((source) => {
           return Promise.resolve(
             source.getItems({
@@ -92,19 +92,28 @@ export function onInput<TItem extends BaseItem>({
               state: store.getState(),
               ...setters,
             })
-          ).then((items) => {
-            invariant(
-              Array.isArray(items),
-              `The \`getItems\` function must return an array of items but returned type ${JSON.stringify(
-                typeof items
-              )}:\n\n${JSON.stringify(items, null, 2)}`
-            );
-
-            return { source, items };
-          });
+          );
         })
       )
+        .then((responses) => {
+          console.log('onInput', responses);
+
+          return responses.map((response, index) => {
+            // invariant(
+            //   Array.isArray(items),
+            //   `The \`getItems\` function must return an array of items but returned type ${JSON.stringify(
+            //     typeof items
+            //   )}:\n\n${JSON.stringify(items, null, 2)}`
+            // );
+
+            return {
+              source: sources[index],
+              items: response,
+            };
+          });
+        })
         .then((collections) => {
+          // console.log({ collections });
           setStatus('idle');
           setCollections(collections as any);
           const isPanelOpen = props.shouldPanelOpen({
