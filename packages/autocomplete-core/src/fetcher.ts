@@ -1,4 +1,7 @@
-import type { MultipleQueriesQuery } from '@algolia/client-search';
+import type {
+  MultipleQueriesQuery,
+  SearchResponse,
+} from '@algolia/client-search';
 import type { SearchClient } from 'algoliasearch';
 import { getAlgoliaResults } from '../../autocomplete-js/src';
 
@@ -8,26 +11,112 @@ type FetcherDescription = {
   $$type?: FetcherType;
 };
 
+type NonAlgoliaDescription = {
+  sourceId: string;
+  results: any[];
+};
+
+type _FetcherDescription = {
+  results: {
+    $$type: FetcherType;
+  } & AlgoliaQuery;
+  sourceId: string;
+};
+
+type AlgoliaQuery = {
+  searchClient: SearchClient;
+  queries: MultipleQueriesQuery[];
+};
+
+type RichFetcherDescription = {
+  type: 'pending';
+  searchClient: SearchClient;
+  queries: WithTransformRepsonse<WithCallerId<MultipleQueriesQuery>>[];
+};
+
+type RichFetcherResponse<T> = WithTransformRepsonse<
+  WithCallerId<SearchResponse>
+>;
+
+type WithCallerId<T> = T & { __autocomplete_callerId: string };
+
+type WithTransformRepsonse<T> = T & {
+  onFetched(response: any): any;
+};
+
 interface AlgoliaFetcherDescription extends FetcherDescription {
   searchClient: SearchClient;
   queries: MultipleQueriesQuery[];
 }
 
-type PackedDescription = {
-  // $$type: FetcherType;
-  queries: Array<{
-    callerId: number;
-    query: MultipleQueriesQuery;
-  }>;
-  transformResponse<TResponse>(response: TResponse): TResponse;
-};
-
-type FetcherDescriptionWrapper = {
+interface FetcherDescriptionWrapper extends FetcherDescription {
   searchClient: SearchClient;
-  descriptions: PackedDescription[];
-};
+  descriptions: WithTransformRepsonse<WithCallerId<MultipleQueriesQuery>[]>[];
+}
 
 const identity = (x) => x;
+
+const transforms: Record<FetcherType, (response: any) => any> = {
+  algoliaHits: (response: SearchResponse) => response.hits,
+  algoliaResults: (response: SearchResponse) => response,
+};
+
+function toResolved(n: NonAlgoliaDescription) {
+  return {
+    type: 'resolved',
+    __autocomplete_callerId: n.sourceId,
+    hits: n.results,
+    onFetched: ({ hits }) => hits,
+  };
+}
+
+function toRichFetcherDescription(
+  description: _FetcherDescription
+): RichFetcherDescription {
+  return {
+    type: 'pending',
+    searchClient: description.results.searchClient,
+    queries: description.results.queries.map((query) => {
+      return {
+        ...query,
+        __autocomplete_callerId: description.sourceId,
+        onFetched: transforms[description.results.$$type],
+      };
+    }),
+  };
+}
+
+function toAlgoliaQueries(
+  richDescriptions: RichFetcherDescription[]
+): AlgoliaQuery[] {
+  return richDescriptions.map((description) => {
+    const { searchClient, queries } = description;
+
+    return {
+      searchClient,
+      queries: queries.map((query) => {
+        const { __autocomplete_callerId, onFetched, ...rest } = query;
+
+        return rest;
+      }),
+    };
+  });
+}
+
+function toRichFetcherResponse(
+  responses: SearchResponse[],
+  references: WithTransformRepsonse<WithCallerId<MultipleQueriesQuery>>[]
+) {
+  return responses.map((result, index) => {
+    const { __autocomplete_callerId, onFetched } = references[index];
+
+    return {
+      ...result,
+      __autocomplete_callerId,
+      onFetched,
+    };
+  });
+}
 
 function isFetcherDescription(
   description: any
@@ -45,8 +134,6 @@ function isAlgoliaFetcherDescription(
 }
 
 function pack(descriptions: unknown[]): FetcherDescriptionWrapper[] {
-  console.log('pack', descriptions);
-
   return descriptions.reduce<FetcherDescriptionWrapper[]>(
     (acc, current, index) => {
       if (isAlgoliaFetcherDescription(current)) {
@@ -179,19 +266,62 @@ function request(wrappers: FetcherDescriptionWrapper[]) {
 
 // @TODO: solve concurrency issues with request ID
 export async function resolve(descriptions: unknown[]) {
-  console.group('resolve');
-  console.log('descriptions', descriptions);
+  const data = await Promise.all(descriptions);
+  const data2 = data.map((d) => {
+    if (!Array.isArray(d.results) && d.results.$$type) {
+      return toRichFetcherDescription(d);
+    }
 
-  const packedDescriptions = pack(await Promise.all(descriptions));
-  console.log('packedDescriptions', packedDescriptions);
+    return toResolved(d);
+  });
 
-  const responses = await request(packedDescriptions);
-  console.log('responses', responses);
+  console.log({ data });
+  console.log({ data2 });
+
+  const data3 = data2.map((group) => {
+    if (group.type === 'resolved') {
+      return [group];
+    }
+
+    const { searchClient, queries } = group;
+
+    return getAlgoliaResults({
+      searchClient,
+      queries: stripNonAlgoliaStuff(queries),
+    }).then((results) => {
+      return reassignNonAlgoliaSTuff(results, queries);
+    });
+  });
+
+  /* const packedDescriptions = pack(await Promise.all(descriptions));
+
+  const responses = await request(packedDescriptions); */
 
   // const unpackedDescriptions = unpack(responses);
   // console.log('unpackedDescriptions', unpackedDescriptions);
 
-  console.groupEnd();
+  //return responses;
 
-  return responses;
+  return Promise.all(data3);
+}
+
+function stripNonAlgoliaStuff(queries) {
+  return queries.map((query) => {
+    const { __autocomplete_callerId, onFetched, ...rest } = query;
+
+    return rest;
+  });
+}
+
+function reassignNonAlgoliaSTuff(results, reference) {
+  return results.map((result, index) => {
+    const { __autocomplete_callerId, onFetched, type } = reference[index];
+
+    return {
+      ...result,
+      __autocomplete_callerId,
+      onFetched,
+      type,
+    };
+  });
 }

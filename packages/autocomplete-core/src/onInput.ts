@@ -92,11 +92,21 @@ export function onInput<TItem extends BaseItem>({
               state: store.getState(),
               ...setters,
             })
-          );
+          ).then((d) => ({ results: d, sourceId: source.sourceId }));
         })
       )
         .then((responses) => {
-          console.log('onInput', responses);
+          console.log({ responses: responses.flat() });
+          const data5 = responses.flat().map((response, index) => {
+            return {
+              source: sources.find(
+                (source) => source.sourceId === response.__autocomplete_callerId
+              ),
+              items: response.onFetched(response),
+            };
+          });
+
+          console.log({ data5 });
 
           return responses.map((response, index) => {
             // invariant(

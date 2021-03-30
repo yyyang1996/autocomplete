@@ -43,19 +43,19 @@ autocomplete({
     }
 
     return [
-      // {
-      //   sourceId: 'github',
-      //   getItems() {
-      //     return fetch(`https://api.github.com/search/repositories?q=${query}`)
-      //       .then((res) => res.json())
-      //       .then((r) => r.items || []);
-      //   },
-      //   templates: {
-      //     item({ item }) {
-      //       return item.full_name;
-      //     },
-      //   },
-      // },
+      {
+        sourceId: 'github',
+        getItems() {
+          return fetch(`https://api.github.com/search/repositories?q=${query}`)
+            .then((res) => res.json())
+            .then((r) => r.items || []);
+        },
+        templates: {
+          item({ item }) {
+            return item.full_name;
+          },
+        },
+      },
       {
         sourceId: 'suggestions',
         getItems() {
