@@ -129,7 +129,7 @@ body {
 @media (hover: none) and (pointer: coarse) {
   :root {
     // Size and spacing
-    --aa-spacing-factor: 1.2;
+    // --aa-spacing-factor: 1.2;
     --aa-action-icon-size: 22px;
   }
 }
@@ -170,31 +170,41 @@ body {
     border: 1px solid
       rgba(var(--aa-input-border-color-rgb), var(--aa-input-border-color-alpha));
     border-radius: 3px;
-    display: flex;
+    display: grid;
+    grid-template-columns:
+      calc(
+        var(--aa-icon-size) + var(--aa-spacing) + var(--aa-spacing-half) + 3px
+      )
+      1fr calc(var(--aa-icon-size) + var(--aa-spacing));
     line-height: 1em;
     margin: 0;
-    padding: 0 calc(var(--aa-spacing) - 2px) 0 calc(var(--aa-spacing) - 1px);
     position: relative;
     width: 100%;
     @at-root .aa-InputWrapperPrefix {
       align-items: center;
       display: flex;
       flex-shrink: 0;
+      height: 100%;
+      justify-content: center;
       order: 1;
       // Container for search and loading icons
       .aa-Label,
       .aa-LoadingIndicator {
+        align-items: center;
         cursor: initial;
+        display: flex;
         flex-shrink: 0;
-        padding: 0;
+        height: 100%;
         text-align: left;
-        width: calc(var(--aa-icon-size) + var(--aa-spacing));
+        width: 100%;
+        &[hidden] {
+          display: none;
+        }
         button {
           appearance: none;
           background: none;
           border: 0;
           margin: 0;
-          padding: 2px;
         }
         svg {
           color: rgba(var(--aa-primary-color-rgb), 1);
@@ -203,6 +213,16 @@ body {
           stroke-width: var(--aa-icon-stroke-width);
           width: var(--aa-input-icon-size);
         }
+        .aa-LoadingIcon {
+          height: 100%;
+          width: 100%;
+        }
+      }
+      .aa-Label button,
+      .aa-LoadingIndicator {
+        height: 100%;
+        padding: 0 0 0 3px;
+        width: 100%;
       }
     }
     @at-root .aa-InputWrapper {
@@ -217,6 +237,7 @@ body {
         color: rgba(var(--aa-text-color-rgb), var(--aa-text-color-alpha));
         font: inherit;
         height: var(--aa-search-input-height);
+        padding: 0;
         width: 100%;
         // Remove native appearence
         &::-webkit-search-decoration,
@@ -240,6 +261,8 @@ body {
     @at-root .aa-InputWrapperSuffix {
       align-items: center;
       display: flex;
+      height: 100%;
+      justify-content: center;
       order: 4;
       // Accelerator to clear the query
       .aa-ClearButton {
@@ -812,6 +835,19 @@ body {
     justify-content: space-between;
     margin: 0;
     padding: var(--aa-spacing-half);
+    .aa-Form {
+      grid-template-columns: calc(var(--aa-icon-size) + var(--aa-spacing) + 3px) 1fr calc(
+          var(--aa-icon-size) + var(--aa-spacing)
+        );
+      .aa-InputWrapperPrefix {
+        .aa-Label button,
+        .aa-LoadingIndicator {
+          align-items: center;
+          display: flex; // @TODO: this shouldn't be necessary
+          padding: 0 0 0 7px;
+        }
+      }
+    }
     .aa-DetachedCancelButton {
       background: none;
       border: 0;
