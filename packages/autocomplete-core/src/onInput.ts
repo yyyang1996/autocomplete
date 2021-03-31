@@ -1,6 +1,6 @@
 import { invariant } from '@algolia/autocomplete-shared';
 
-import { resolve } from './fetcher';
+import { AlgoliaDescription, NonAlgoliaDescription, resolve } from './fetcher';
 import {
   AutocompleteScopeApi,
   AutocompleteState,
@@ -92,28 +92,41 @@ export function onInput<TItem extends BaseItem>({
               state: store.getState(),
               ...setters,
             })
-          ).then((d) => ({ results: d, sourceId: source.sourceId }));
+          ).then((items) => {
+            return {
+              results: Array.isArray(items)
+                ? { $$type: 'other', items }
+                : items,
+              sourceId: source.sourceId,
+            };
+          }) as Promise<AlgoliaDescription | NonAlgoliaDescription>;
         })
       )
         .then((responses) => {
-          const data5 = responses.flat().map((response) => {
-            return {
-              source: sources.find(
-                (source) => source.sourceId === response.__autocomplete_callerId
-              ),
-              items: response.onFetched(response),
-            };
-          }).reduce((acc, curr) => {
-            const needle = acc.find(x => x?.source.sourceId === curr.source.sourceId)
+          const data5 = responses
+            .flat()
+            .map((response) => {
+              return {
+                source: sources.find(
+                  (source) =>
+                    source.sourceId === response.__autocomplete_callerId
+                ),
+                items: response.onFetched(response),
+              };
+            })
+            .reduce((acc, curr) => {
+              const needle = acc.find(
+                (x) => x?.source.sourceId === curr.source.sourceId
+              );
 
-            if (needle) {
-              needle.items = [...needle.items, ...curr.items]
-            } else {
-              acc.push(curr);
-            }
+              if (needle) {
+                needle.items = [...needle.items, ...curr.items];
+              } else {
+                acc.push(curr);
+              }
 
-            return acc;
-          }, []);
+              return acc;
+            }, []);
 
           return data5;
 

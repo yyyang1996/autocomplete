@@ -5,22 +5,13 @@ import type {
 import type { SearchClient } from 'algoliasearch';
 import { getAlgoliaResults } from '../../autocomplete-js/src';
 
-type FetcherType = 'algoliaHits' | 'algoliaResults'; // | 'algoliaFacetHits';
+type FetcherType = 'algoliaHits' | 'algoliaResults' | 'other'; // | 'algoliaFacetHits';
 
-type FetcherDescription = {
-  $$type?: FetcherType;
-};
-
-type NonAlgoliaDescription = {
+type Description<TData, TType extends FetcherType> = {
   sourceId: string;
-  results: any[];
-};
-
-type _FetcherDescription = {
   results: {
-    $$type: FetcherType;
-  } & AlgoliaQuery;
-  sourceId: string;
+    $$type: TType;
+  } & TData;
 };
 
 type AlgoliaQuery = {
@@ -28,11 +19,30 @@ type AlgoliaQuery = {
   queries: MultipleQueriesQuery[];
 };
 
-type RichFetcherDescription = {
-  type: 'pending';
+export type AlgoliaDescription = Description<
+  AlgoliaQuery,
+  'algoliaHits' | 'algoliaResults'
+>;
+
+type RichAlgoliaDescription = {
+  $$type: 'algoliaHits' | 'algoliaResults';
   searchClient: SearchClient;
   queries: WithTransformRepsonse<WithCallerId<MultipleQueriesQuery>>[];
 };
+
+export type NonAlgoliaDescription = Description<
+  {
+    items: any[];
+  },
+  'other'
+>;
+
+type RichNonAlgoliaDescription = WithTransformRepsonse<
+  WithCallerId<{
+    $$type: 'other';
+    hits: any[];
+  }>
+>;
 
 type WithCallerId<T> = T & { __autocomplete_callerId: string };
 
@@ -40,50 +50,53 @@ type WithTransformRepsonse<T> = T & {
   onFetched(response: any): any;
 };
 
-interface AlgoliaFetcherDescription extends FetcherDescription {
-  searchClient: SearchClient;
-  queries: MultipleQueriesQuery[];
-}
-
 const transforms: Record<FetcherType, (response: any) => any> = {
   algoliaHits: (response: SearchResponse) => response.hits,
   algoliaResults: (response: SearchResponse) => response,
+  other: (response: SearchResponse) => response.hits,
 };
 
-function toResolved(n: NonAlgoliaDescription) {
+function toRichNonAlgoliaDescription({
+  sourceId,
+  results,
+}: NonAlgoliaDescription): RichNonAlgoliaDescription {
   return {
-    type: 'resolved',
-    __autocomplete_callerId: n.sourceId,
-    hits: n.results,
-    onFetched: ({ hits }) => hits,
+    $$type: results.$$type,
+    hits: results.items,
+    onFetched: transforms[results.$$type],
+    __autocomplete_callerId: sourceId,
   };
 }
 
-function toRichFetcherDescription(
-  description: _FetcherDescription
-): RichFetcherDescription {
+function toRichAlgoliaDescription({
+  sourceId,
+  results,
+}: AlgoliaDescription): RichAlgoliaDescription {
   return {
-    type: 'pending',
-    searchClient: description.results.searchClient,
-    queries: description.results.queries.map((query) => {
+    $$type: results.$$type,
+    searchClient: results.searchClient,
+    queries: results.queries.map((query) => {
       return {
         ...query,
-        __autocomplete_callerId: description.sourceId,
-        onFetched: transforms[description.results.$$type],
+        onFetched: transforms[results.$$type],
+        __autocomplete_callerId: sourceId,
       };
     }),
   };
 }
 
-function isFetcherDescription(
-  description: any
-): description is FetcherDescription {
-  return Boolean(description.$$type);
+function isAlgoliaDescription(
+  description: AlgoliaDescription | NonAlgoliaDescription
+): description is AlgoliaDescription {
+  return (
+    description.results.$$type === 'algoliaHits' ||
+    description.results.$$type === 'algoliaResults'
+  );
 }
 
-function isAlgoliaFetcherDescription(
-  description: any
-): description is AlgoliaFetcherDescription {
+function isRichAlgoliaDescription(
+  description: RichAlgoliaDescription | RichNonAlgoliaDescription
+): description is RichAlgoliaDescription {
   return (
     description.$$type === 'algoliaHits' ||
     description.$$type === 'algoliaResults'
@@ -91,28 +104,38 @@ function isAlgoliaFetcherDescription(
 }
 
 // @TODO: solve concurrency issues with request ID
-export async function resolve(descriptions: unknown[]) {
-  const data = await Promise.all(descriptions);
-  const data2 = data.map((d) => {
-    if (!Array.isArray(d.results) && d.results.$$type) {
-      return toRichFetcherDescription(d);
+export async function resolve(
+  d: Promise<AlgoliaDescription | NonAlgoliaDescription>[]
+) {
+  const descriptions = await Promise.all(d);
+  const richDescriptions = descriptions.map((description) => {
+    if (isAlgoliaDescription(description)) {
+      return toRichAlgoliaDescription(description);
     }
 
-    return toResolved(d);
-  }).reduce((acc, curr) => {
-    const needle = acc.find(x => x?.searchClient === curr.searchClient)
+    return toRichNonAlgoliaDescription(description);
+  });
+  const groupedRichDescriptions = richDescriptions.reduce((acc, curr) => {
+    if (isRichAlgoliaDescription(curr)) {
+      const matchingGroup = acc.find((group) => {
+        return isRichAlgoliaDescription(group)
+          ? group.searchClient === curr.searchClient
+          : undefined;
+      }) as RichAlgoliaDescription | undefined;
 
-    if (needle) {
-      needle.queries = [...needle.queries, ...curr.queries]
+      if (matchingGroup) {
+        matchingGroup.queries = [...matchingGroup.queries, ...curr.queries];
+      } else {
+        acc.push(curr);
+      }
     } else {
       acc.push(curr);
     }
 
     return acc;
-  }, []);
-
-  const data3 = data2.map((group) => {
-    if (group.type === 'resolved') {
+  }, [] as (RichNonAlgoliaDescription | RichAlgoliaDescription)[]);
+  const richResponses = groupedRichDescriptions.map((group) => {
+    if (!isRichAlgoliaDescription(group)) {
       return [group];
     }
 
@@ -120,16 +143,18 @@ export async function resolve(descriptions: unknown[]) {
 
     return getAlgoliaResults({
       searchClient,
-      queries: stripNonAlgoliaStuff(queries),
+      queries: stripNonAlgoliaParameters(queries),
     }).then((results) => {
-      return reassignNonAlgoliaStuff(results, queries);
+      return reassignNonAlgoliaParameters(results, queries);
     });
   });
 
-  return Promise.all(data3);
+  return Promise.all(richResponses);
 }
 
-function stripNonAlgoliaStuff(queries) {
+function stripNonAlgoliaParameters(
+  queries: WithTransformRepsonse<WithCallerId<MultipleQueriesQuery>>[]
+) {
   return queries.map((query) => {
     const { __autocomplete_callerId, onFetched, ...rest } = query;
 
@@ -137,15 +162,17 @@ function stripNonAlgoliaStuff(queries) {
   });
 }
 
-function reassignNonAlgoliaStuff(results, reference) {
+function reassignNonAlgoliaParameters(
+  results: SearchResponse<unknown>[],
+  reference: WithTransformRepsonse<WithCallerId<MultipleQueriesQuery>>[]
+) {
   return results.map((result, index) => {
-    const { __autocomplete_callerId, onFetched, type } = reference[index];
+    const { __autocomplete_callerId, onFetched } = reference[index];
 
     return {
       ...result,
       __autocomplete_callerId,
       onFetched,
-      type,
     };
   });
 }
