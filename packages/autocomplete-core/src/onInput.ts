@@ -96,17 +96,26 @@ export function onInput<TItem extends BaseItem>({
         })
       )
         .then((responses) => {
-          console.log({ responses: responses.flat() });
-          const data5 = responses.flat().map((response, index) => {
+          const data5 = responses.flat().map((response) => {
             return {
               source: sources.find(
                 (source) => source.sourceId === response.__autocomplete_callerId
               ),
               items: response.onFetched(response),
             };
-          });
+          }).reduce((acc, curr) => {
+            const needle = acc.find(x => x?.source.sourceId === curr.source.sourceId)
 
-          console.log({ data5 });
+            if (needle) {
+              needle.items = [...needle.items, ...curr.items]
+            } else {
+              acc.push(curr);
+            }
+
+            return acc;
+          }, []);
+
+          return data5;
 
           return responses.map((response, index) => {
             // invariant(

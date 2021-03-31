@@ -37,7 +37,7 @@ autocomplete({
     // querySuggestionsPlugin,
     // categoriesPlugin,
   ],
-  getSources({ query, state }) {
+  getSources({ query }) {
     if (!query) {
       return [];
     }
@@ -46,7 +46,7 @@ autocomplete({
       {
         sourceId: 'github',
         getItems() {
-          return fetch(`https://api.github.com/search/repositories?q=${query}`)
+          return fetch(`https://api.github.com/search/repositories?q=${query}&per_page=5`)
             .then((res) => res.json())
             .then((r) => r.items || []);
         },
