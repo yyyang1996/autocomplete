@@ -1,3 +1,36 @@
+# [1.0.0-alpha.45](https://github.com/algolia/autocomplete/compare/v1.0.0-alpha.44...v1.0.0-alpha.45) (2021-04-09)
+
+### Bug Fixes
+
+- **js:** change button class name to "aa-ClearButton" ([5991e77](https://github.com/algolia/autocomplete/commit/5991e77539f4cf2c7ab0a92c1ce626f3176348e7))
+- **js:** prevent id incrementation when toggling detached mode ([#489](https://github.com/algolia/autocomplete/issues/489)) ([fe2bf13](https://github.com/algolia/autocomplete/commit/fe2bf1326135ed6efa5b1434d7e23650a53442e5))
+- **js:** remove `window` references ([#501](https://github.com/algolia/autocomplete/issues/501)) ([7628d09](https://github.com/algolia/autocomplete/commit/7628d0944c3820d9227a1a4f4014efe78b7afeab))
+- **js:** run reactive values only once ([8356031](https://github.com/algolia/autocomplete/commit/83560313e0dfcc8c47e5078916f2f860ab347f5d))
+- **qs:** rename `categoriesLimit` to `itemsWithCategories` ([#491](https://github.com/algolia/autocomplete/issues/491)) ([4c97375](https://github.com/algolia/autocomplete/commit/4c9737563da9cb04b085bb1c2fb1c28e850d1b6d))
+
+### Features
+
+- **autocomplete-theme-classic:** align search box properly ([#511](https://github.com/algolia/autocomplete/issues/511)) ([c807ed4](https://github.com/algolia/autocomplete/commit/c807ed46c29e594d2dff62f325545dc53bfda165)), closes [#513](https://github.com/algolia/autocomplete/issues/513)
+- **js:** introduce Component API ([#505](https://github.com/algolia/autocomplete/issues/505)) ([74a908c](https://github.com/algolia/autocomplete/commit/74a908c9d2898e20da9451b4cf5f3575cd2f0151))
+- **js:** pass `elements` record to `render` ([#490](https://github.com/algolia/autocomplete/issues/490)) ([a50712e](https://github.com/algolia/autocomplete/commit/a50712e151266f13046d50ef7f8fccea27425bd4))
+- **plugins:** provide `state` to `transformSource` ([#516](https://github.com/algolia/autocomplete/issues/516)) ([eaa2026](https://github.com/algolia/autocomplete/commit/eaa2026dfe58603be48c5400fdadb6ec9ed539c4))
+- **recent-searches:** export storage and search APIs ([#473](https://github.com/algolia/autocomplete/issues/473)) ([09be485](https://github.com/algolia/autocomplete/commit/09be4855417840ae2428916d5291a49ab24e8532))
+- **theme:** patch theme ([#497](https://github.com/algolia/autocomplete/issues/497)) ([9bf41e2](https://github.com/algolia/autocomplete/commit/9bf41e2897624d7f69bb9dab4e7088f30247c73c))
+
+# [1.0.0-alpha.44](https://github.com/algolia/autocomplete/compare/v1.0.0-alpha.43...v1.0.0-alpha.44) (2021-03-01)
+
+### Bug Fixes
+
+- **core:** compute open state on focus with `shouldPanelOpen` ([#456](https://github.com/algolia/autocomplete/issues/456)) ([dd28098](https://github.com/algolia/autocomplete/commit/dd28098accb75b5e76bc02df716a37b273b3e58a))
+- **js:** provide `title`s to submit and clear button ([45944e4](https://github.com/algolia/autocomplete/commit/45944e4c9f4e695039ab18e41284ff3d621774b7)), closes [algolia/algoliasearch-netlify#203](https://github.com/algolia/algoliasearch-netlify/issues/203)
+- **js:** rename "Reset" button to "Clear" ([434c565](https://github.com/algolia/autocomplete/commit/434c56506f866c791553a79d2d3bbf325f8f11a6))
+- **theme:** keep item icon ratio ([b77921e](https://github.com/algolia/autocomplete/commit/b77921e857691dcda3d5d110a494425464899aab))
+
+### Features
+
+- **js:** scroll to top when query changes ([#457](https://github.com/algolia/autocomplete/issues/457)) ([706939c](https://github.com/algolia/autocomplete/commit/706939c4f45e781b9cf9ae886521a7eb99f16755))
+- **qs:** rename `category` to `categoryAttribute` ([5d8c5d4](https://github.com/algolia/autocomplete/commit/5d8c5d4f5e2ce6d5621033fd04bd8431c0b7b915))
+
 # [1.0.0-alpha.43](https://github.com/algolia/autocomplete.js/compare/v1.0.0-alpha.42...v1.0.0-alpha.43) (2021-02-19)
 
 ### Bug Fixes

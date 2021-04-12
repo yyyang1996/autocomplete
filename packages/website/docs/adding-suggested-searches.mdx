@@ -17,8 +17,13 @@ const querySuggestionsPlugin = createQuerySuggestionsPlugin({
 const querySuggestionsPluginWithCategories = createQuerySuggestionsPlugin({
   searchClient,
   indexName: 'instant_search_demo_query_suggestions',
-  categoryAttribute: 'categories',
-  categoriesLimit: 2,
+  categoryAttribute: [
+    'instant_search',
+    'facets',
+    'exact_matches',
+    'categories',
+  ],
+  itemsWithCategories: 2,
   categoriesPerItem: 2,
 });
 
@@ -141,9 +146,9 @@ With [some configuration](https://www.algolia.com/doc/guides/getting-insights-an
 
 To display categories with the suggestions, you need to define the attribute to retrieve category information from, using the `categoryAttribute` option when instantiating the plugin.
 
-In this example, the category data is stored in the nested attribute `instant_search.facets.exact_matches.categories`. With this structure, you only need to provide `"categories"` as the `categoryAttribute`.
+In this example, the category data is stored in the nested attribute `instant_search.facets.exact_matches.categories`. With this structure, you need to provide the path `["instant_search", "facets", "exact_matches", "categories"]` as the `categoryAttribute`.
 
-You can also set the number of items to display categories for using `categoriesLimit` and the maximum number of categories to display per item using `categoriesPerItem`. Both default to `1`.
+You can also set the number of items to display categories for using `itemsWithCategories` and the maximum number of categories to display per item using `categoriesPerItem`. Both default to `1`.
 
 ```js title="index.js"
 import { autocomplete } from '@algolia/autocomplete-js';
@@ -159,8 +164,13 @@ const querySuggestionsPlugin = createQuerySuggestionsPlugin({
   getSearchParams({ state }) {
     return { hitsPerPage: state.query ? 5 : 10 };
   },
-  categoryAttribute: 'categories',
-  categoriesLimit: 2,
+  categoryAttribute: [
+    'instant_search',
+    'facets',
+    'exact_matches',
+    'categories',
+  ],
+  itemsWithCategories: 2,
   categoriesPerItem: 2,
 });
 

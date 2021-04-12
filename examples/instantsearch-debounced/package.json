@@ -1,5 +1,5 @@
 {
-  "name": "@algolia/example-instantsearch-debounced",
+  "name": "@algolia/autocomplete-example-instantsearch-debounced",
   "description": "Autocomplete with InstantSearch (debounced) Sandbox",
   "version": "1.0.0-alpha.41",
   "private": true,
@@ -10,18 +10,18 @@
     "start": "parcel index.html"
   },
   "dependencies": {
-    "@algolia/autocomplete-js": "1.0.0-alpha.41",
-    "@algolia/autocomplete-plugin-query-suggestions": "1.0.0-alpha.41",
-    "@algolia/autocomplete-plugin-recent-searches": "1.0.0-alpha.41",
-    "@algolia/autocomplete-theme-classic": "1.0.0-alpha.41",
-    "@algolia/client-search": "4.8.3",
-    "algoliasearch": "4.8.3",
-    "instantsearch.js": "4.15.0",
+    "@algolia/autocomplete-js": "1.0.0-alpha.44",
+    "@algolia/autocomplete-plugin-query-suggestions": "1.0.0-alpha.44",
+    "@algolia/autocomplete-plugin-recent-searches": "1.0.0-alpha.44",
+    "@algolia/autocomplete-theme-classic": "1.0.0-alpha.44",
+    "@algolia/client-search": "4.8.6",
+    "algoliasearch": "4.8.6",
+    "instantsearch.js": "4.20.0",
     "navigo": "8.8.12",
-    "preact": "10.5.7"
+    "preact": "10.5.13"
   },
   "devDependencies": {
-    "parcel-bundler": "1.12.4"
+    "parcel": "2.0.0-beta.2"
   },
   "keywords": [
     "algolia",

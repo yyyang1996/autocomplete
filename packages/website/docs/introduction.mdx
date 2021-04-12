@@ -19,8 +19,13 @@ const querySuggestionsPlugin = createQuerySuggestionsPlugin({
       hitsPerPage: 3,
     };
   },
-  categoryAttribute: 'categories',
-  categoriesLimit: 2,
+  categoryAttribute: [
+    'instant_search',
+    'facets',
+    'exact_matches',
+    'categories',
+  ],
+  categoriesPerItem: 2,
 });
 const productsPlugin = createProductsPlugin();
 const productsPluginWithHeader = createProductsPlugin({

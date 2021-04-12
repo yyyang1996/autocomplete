@@ -30,29 +30,25 @@ module.exports = {
       'api',
       {
         type: 'category',
-        label: 'autocomplete-core',
-        items: ['createAutocomplete'],
-      },
-      {
-        type: 'category',
         label: 'autocomplete-js',
         items: [
           'autocomplete-js',
           'getAlgoliaHits-js',
           'getAlgoliaResults-js',
           'getAlgoliaFacetHits-js',
-          'highlightHit',
-          'reverseHighlightHit',
-          'snippetHit',
-          'reverseSnippetHit',
         ],
+      },
+      {
+        type: 'category',
+        label: 'autocomplete-core',
+        items: ['createAutocomplete'],
       },
       {
         type: 'category',
         label: 'autocomplete-plugin-recent-searches',
         items: [
-          'createLocalStorageRecentSearchesPlugin',
           'createRecentSearchesPlugin',
+          'createLocalStorageRecentSearchesPlugin',
         ],
       },
       {
@@ -73,8 +69,8 @@ module.exports = {
           'getAlgoliaResults',
           'getAlgoliaFacetHits',
           'parseAlgoliaHitHighlight',
-          'parseAlgoliaHitReverseHighlight',
           'parseAlgoliaHitSnippet',
+          'parseAlgoliaHitReverseHighlight',
           'parseAlgoliaHitReverseSnippet',
         ],
       },

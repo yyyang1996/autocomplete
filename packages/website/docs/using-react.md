@@ -10,6 +10,7 @@ This guide shows how to create a React Autocomplete component. It uses the [`use
 ## Prerequisites
 
 This tutorial assumes that you have:
+
 - an existing [React (v16.8+) application](https://reactjs.org/docs/getting-started.html) where you want to implement the autocomplete menu
 - familiarity with the [basic Autocomplete configuration options](basic-options)
 
@@ -17,7 +18,7 @@ This tutorial assumes that you have:
 
 Start with some boilerplate for creating a React component. This component uses the [`useRef`](https://reactjs.org/docs/hooks-reference.html#useref) hook to create a mutable ref object, `containerRef`, to mount the autocomplete on. To learn more about this hook, check out the [`useRef` React documentation](https://reactjs.org/docs/hooks-reference.html#useref).
 
- All that you need to render is a `div` with the `containerRef` as the `ref`.
+All that you need to render is a `div` with the `containerRef` as the `ref`.
 
 ```jsx title="Autocomplete.jsx"
 import React, { createElement, Fragment, useEffect, useRef } from 'react';
@@ -32,11 +33,7 @@ export function Autocomplete(props) {
     }
   }, [props]);
 
-  return (
-    <div
-      ref={containerRef}
-    />
-  );
+  return <div ref={containerRef} />;
 }
 ```
 
@@ -77,11 +74,7 @@ export function Autocomplete(props) {
     };
   }, [props]);
 
-  return (
-    <div
-      ref={containerRef}
-    />
-  );
+  return <div ref={containerRef} />;
 }
 ```
 
@@ -91,10 +84,9 @@ Now that you've created an `<Autocomplete />` component, you can use it in your 
 
 The usage below sets [`openOnFocus`](autocomplete-js#openonfocus) and [sources](sources) through props. This example uses an [Algolia index](https://www.algolia.com/doc/faq/basics/what-is-an-index/) as a [source](sources), but you could use anything else you want, including [plugins](plugins). For more information on using Algolia as a source, check out the [Getting Started guide](getting-started).
 
-
 ```jsx title=App.jsx"
 import React, { createElement } from 'react';
-import { getAlgoliaHits } from 'autocomplete-js';
+import { getAlgoliaHits } from '@algolia/autocomplete-js';
 import algoliasearch from "algoliasearch";
 import { Autocomplete } from './components/Autocomplete';
 import { ProductItem } from './components/ProductItem';
@@ -112,6 +104,7 @@ function App() {
         getSources={({ query }) =>
           [
             {
+              sourceId: 'products',
               getItems() {
                 return getAlgoliaHits({
                   searchClient,
@@ -124,12 +117,12 @@ function App() {
                 });
               },
               templates: {
-                item({ item }) {
-                  return <ProductItem hit={item} />;
+                item({ item, components }) {
+                  return <ProductItem hit={item} components={components} />;
                 }
               }
             }
-          ];
+          ]
         }
       />
     </div>
@@ -141,36 +134,22 @@ export default App;
 
 ### Creating templates
 
-The example above passes `<ProductItem />`, another React component, for the `item` [template](templates). When creating templates, there's one thing to keep in mind. If you're using the highlighting and snippeting utilities, you must pass them React's `createElement` function. Without doing this, the utilities default to `preact.createElement` and won't work properly.
-
-The highlighting and snippeting utilities are:
-- [`highlightHit`](highlighthit)
-- [`snippetHit`](snippethit)
-- [`reverseHighlightHit`](reversehighlighthit)
-- [`reverseSnippetHit`](reversesnippethit)
-
-Here's an example using [`highlightHit`](highlighthit):
+The example above passes `<ProductItem />`, another React component, for the `item` [template](templates).
 
 ```jsx title="ProductItem.jsx"
-import { highlightHit } from '@algolia/autocomplete-js';
 import React, { createElement } from 'react';
 
-export function ProductItem({ hit }) {
+export function ProductItem({ hit, components }) {
   return (
     <a href={hit.url} className="aa-ItemLink">
       <div className="aa-ItemContent">
         <div className="aa-ItemTitle">
-          {highlightHit({
-            hit,
-            attribute: 'name',
-            createElement,
-          })}
+          <components.Highlight hit={hit} attribute="name" />
         </div>
       </div>
     </a>
   )
-  ```
-
+```
 
 ## Further UI customization
 
