@@ -247,6 +247,7 @@ const autocompleteSearch = autocomplete({
     querySuggestionsPlugin,
   ],
   touchMediaQuery: 'none',
+  debug: process.env.NODE_ENV === 'development',
   navigator: {
     navigate({ item }) {
       router.navigate(
